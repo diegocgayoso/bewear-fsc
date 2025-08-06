@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -46,6 +48,7 @@ const formSchema = z
 
 type FormSchema = z.infer<typeof formSchema>;
 const SignUpForm = () => {
+
   const formSignUp = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,9 +59,20 @@ const SignUpForm = () => {
     },
   });
 
-  const onSubmit = (data: FormSchema) => {
-    console.log("Formulário enviado e validado com sucesso!");
-    console.log(data);
+  async function onSubmit(values: FormSchema) {
+    const { data, error} = await authClient.signUp.email({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("Cadastro realizado com sucesso!");
+        },
+        onError: (error) => {
+          toast.error(error.error.message);
+        },
+      }
+    })
   };
 
   return (
