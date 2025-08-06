@@ -21,6 +21,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -48,7 +49,7 @@ const formSchema = z
 
 type FormSchema = z.infer<typeof formSchema>;
 const SignUpForm = () => {
-
+  const router = useRouter();
   const formSignUp = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,20 +61,24 @@ const SignUpForm = () => {
   });
 
   async function onSubmit(values: FormSchema) {
-    const { data, error} = await authClient.signUp.email({
+    await authClient.signUp.email({
       name: values.name,
       email: values.email,
       password: values.password,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Cadastro realizado com sucesso!");
+          router.push("/");
         },
         onError: (error) => {
+          if (error.error.code === "USER_ALREADY_EXISTS") {
+            toast.error("E-mail já cadastrado!");
+            return formSignUp.setError("email", { message: "E-mail já cadastrado!" });
+          }
           toast.error(error.error.message);
         },
-      }
-    })
-  };
+      },
+    });
+  }
 
   return (
     <Card className="w-full">
