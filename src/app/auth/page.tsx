@@ -1,9 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SignInForm from "./components/signIn";
 import SignUpForm from "./components/signUp";
+import Header from "@/components/common/header";
 
 const Auth = () => {
   return (
+    <>
+    <Header />
     <div className="flex w-full flex-col gap-6 p-6">
       <Tabs defaultValue="sign-up">
         <TabsList>
@@ -18,6 +21,7 @@ const Auth = () => {
           </TabsContent>
         </Tabs>
       </div>
+    </>
   )
 }
 export default Auth;
