@@ -5,6 +5,8 @@ import Image from "next/image";
 import { db } from "@/db";
 import ProductsList from "@/components/common/products-list";
 import PartnerBrands from "@/components/common/partner-brands";
+import Banner from "@/components/common/banner";
+import CategoryList from "@/components/common/category-list";
 
 const Home = async () => {
   const products = await db.query.productTable.findMany({
@@ -18,33 +20,11 @@ const Home = async () => {
   return (
     <>
       <Header />
-      <div className="space-y-6">
-        <div className="px-5">
-          <Image
-            src="/banner01.png"
-            alt="Bewear"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="h-auto w-full"
-          />
-        </div>
-      </div>
-
+      <Banner imageUrl="/banner01.png" />
       <PartnerBrands />
       <ProductsList title="Mais vendidos" products={products} />
-      <div className="space-y-6">
-        <div className="px-5">
-          <Image
-            src="/banner02.png"
-            alt="Bewear"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="h-auto w-full"
-          />
-        </div>
-      </div>
+      <CategoryList />
+      <Banner imageUrl="/banner02.png" />
       <Footer />
     </>
   );

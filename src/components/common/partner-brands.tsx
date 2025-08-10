@@ -36,8 +36,8 @@ const PartnerBrands = () => {
   
 ];
   return (
-    <div className="space-y-6 p-6">
-      <h3 className="font-semibold">Marcas parceiras</h3>
+    <div className="space-y-6 mb-8">
+      <h3 className="font-semibold px-6">Marcas parceiras</h3>
       <div className="flex w-full gap-6 overflow-x-auto px-5 [&::-webkit-scrollbar]:hidden">
         {brands.map((brand) => (
           <BrandItem key={brand.id} {...brand} />

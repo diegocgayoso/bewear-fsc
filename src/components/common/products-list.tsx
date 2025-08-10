@@ -13,8 +13,8 @@ interface ProductsListProps {
 
 const ProductsList = ({ title, products }: ProductsListProps) => {
   return (
-    <div className="space-y-6 p-6">
-      <h3 className="font-semibold">{title}</h3>
+    <div className="space-y-6 ">
+      <h3 className="font-semibold px-6">{title}</h3>
       <div className="flex w-full gap-4 overflow-x-auto px-5 [&::-webkit-scrollbar]:hidden">
         {products.map((product) => (
           <Product key={product.id} product={product} />
