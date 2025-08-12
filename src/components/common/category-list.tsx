@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import Link from "next/link";
 
 const CategoryList = async () => {
   const categories = await db.query.categoryTable.findMany();
@@ -6,13 +7,16 @@ const CategoryList = async () => {
   return (
     <>
       <div className="m-4 rounded-2xl bg-[#F4EFFF] p-4">
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap justify-center gap-2">
           {categories.map((category) => (
-            <button key={category.id} className="text-xs text-center font-semibold bg-white py-2 px-4 max-h-10  max-w-[148.5px] rounded-2xl flex-1/2 flex items-center justify-center">
-              {category.name}
+            <button
+              key={category.id}
+              className="flex max-h-10 max-w-[148.5px] flex-1/2 items-center justify-center rounded-2xl bg-white px-4 py-2 text-center text-xs font-semibold"
+            >
+              <Link href={`/category/${category.slug}`}>{category.name}</Link>
             </button>
           ))}
-        </div>   
+        </div>
       </div>
     </>
   );
