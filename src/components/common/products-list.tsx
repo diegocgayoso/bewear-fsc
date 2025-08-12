@@ -1,5 +1,3 @@
-
-
 import { productTable, productVariantTable, categoryTable } from "@/db/schema";
 import Product from "./product-item";
 

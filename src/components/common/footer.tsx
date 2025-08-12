@@ -1,6 +1,6 @@
 const Footer = () => {
   return (
-    <footer className="bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 p-4">
+    <footer className="bg-[#f9f9f9] flex flex-col items-center justify-center gap-2 p-4 mt-6">
       <small className="text-xs text-gray-400">© 2025 Copyright BEWEAR</small>
       <p className="text-xs text-gray-400">
         Desenvolvido por{" "}
