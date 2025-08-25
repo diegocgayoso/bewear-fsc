@@ -33,6 +33,7 @@ const ProductPage = async ({ params }: ProductVariantPageProps) => {
     where: eq(productTable.categoryId, productVariant.product.categoryId),
     with: {
       variants: true,
+      category: true,
     },
   });
 
@@ -56,7 +57,7 @@ const ProductPage = async ({ params }: ProductVariantPageProps) => {
           sizes="100vw"
           height={0}
           width={0}
-          className="h-auto w-full rounded-3xl"
+          className="h-auto w-full rounded-3xl p-4"
         />
       </div>
       <div className="flex flex-col gap-6">

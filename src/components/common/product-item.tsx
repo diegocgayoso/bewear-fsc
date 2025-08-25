@@ -32,9 +32,6 @@ const Product = ({ product, textContainerClassName }: ProductProps) => {
         <p className="truncate text-sm font-semibold">
           {formatCentsToBrl(firstVariant.priceInCents)}
         </p>
-        {/* <p className="truncate text-sm font-semibold">
-          {formatCentsToBRL(firstVariant.priceInCents)}
-        </p> */}
       </div>
     </Link>
   );
