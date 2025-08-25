@@ -5,53 +5,57 @@ import { email } from "zod";
 import { id } from "zod/v4/locales";
 
 export const userTable = pgTable("user", {
-	id: text('id').primaryKey(),
-	name: text('name').notNull(),
-	email: text('email').notNull().unique(),
-	emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
-	image: text('image'),
-	createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-	updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
+  image: text('image'),
+  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
 });
 
-export const userRelations = relations(userTable, ({ many }) => ({
+export const userRelations = relations(userTable, ({ many, one }) => ({
   shippingAddressTable: many(shippingAddressTable),
+  cart: one(CartTable, {
+    fields: [userTable.id],
+    references: [CartTable.userId],
+  })
 }))
 
 export const sessionTable = pgTable("session", {
-	id: text('id').primaryKey(),
-	expiresAt: timestamp('expires_at').notNull(),
-	token: text('token').notNull().unique(),
-	createdAt: timestamp('created_at').notNull(),
-	updatedAt: timestamp('updated_at').notNull(),
-	ipAddress: text('ip_address'),
-	userAgent: text('user_agent'),
-	userId: text('user_id').notNull().references(() => userTable.id, { onDelete: 'cascade' })
+  id: text('id').primaryKey(),
+  expiresAt: timestamp('expires_at').notNull(),
+  token: text('token').notNull().unique(),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  userId: text('user_id').notNull().references(() => userTable.id, { onDelete: 'cascade' })
 });
 
 export const account = pgTable("account", {
-	id: text('id').primaryKey(),
-	accountId: text('account_id').notNull(),
-	providerId: text('provider_id').notNull(),
-	userId: text('user_id').notNull().references(() => userTable.id, { onDelete: 'cascade' }),
-	accessToken: text('access_token'),
-	refreshToken: text('refresh_token'),
-	idToken: text('id_token'),
-	accessTokenExpiresAt: timestamp('access_token_expires_at'),
-	refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
-	scope: text('scope'),
-	password: text('password'),
-	createdAt: timestamp('created_at').notNull(),
-	updatedAt: timestamp('updated_at').notNull()
+  id: text('id').primaryKey(),
+  accountId: text('account_id').notNull(),
+  providerId: text('provider_id').notNull(),
+  userId: text('user_id').notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  accessToken: text('access_token'),
+  refreshToken: text('refresh_token'),
+  idToken: text('id_token'),
+  accessTokenExpiresAt: timestamp('access_token_expires_at'),
+  refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+  scope: text('scope'),
+  password: text('password'),
+  createdAt: timestamp('created_at').notNull(),
+  updatedAt: timestamp('updated_at').notNull()
 });
 
 export const verificationTable = pgTable("verification", {
-	id: text('id').primaryKey(),
-	identifier: text('identifier').notNull(),
-	value: text('value').notNull(),
-	expiresAt: timestamp('expires_at').notNull(),
-	createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()),
-	updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date())
+  id: text('id').primaryKey(),
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()),
+  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date())
 });
 
 
@@ -108,7 +112,7 @@ export const productVariantRelations = relations(
   }),
 );
 
-export const shippingAddressTable =  pgTable("shipping_address", {
+export const shippingAddressTable = pgTable("shipping_address", {
   id: uuid().primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
@@ -135,5 +139,50 @@ export const shippingAddressRelations = relations(
       fields: [shippingAddressTable.userId],
       references: [userTable.id],
     }),
+    cart: one(CartTable, {
+      fields: [shippingAddressTable.userId],
+      references: [CartTable.userId],
+    }),
   }),
 );
+export const CartTable = pgTable("cart", {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  shippingAddressId: uuid("shipping_address_id").references(() => shippingAddressTable.id, { onDelete: "set null" }),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export const cartRelations = relations(CartTable, ({many, one }) => ({
+  user: one(userTable, {
+    fields: [CartTable.userId],
+    references: [userTable.id],
+  }),
+  shippingAddress: one(shippingAddressTable, {
+    fields: [CartTable.shippingAddressId],
+    references: [shippingAddressTable.id],
+  }),
+  items: many(cartItemTable),
+}))
+export const cartItemTable = pgTable("cart_item", {
+  id: uuid().primaryKey().defaultRandom(),
+  cartId: uuid("cart_id")
+    .notNull()
+    .references(() => CartTable.id, { onDelete: "cascade" }),
+  productVariantId: uuid("product_variant_id")
+    .notNull()
+    .references(() => productVariantTable.id, { onDelete: "cascade" }),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export const cartItemRelations = relations(cartItemTable, ({ one }) => ({
+  cart: one(CartTable, {
+    fields: [cartItemTable.cartId],
+    references: [CartTable.id],
+  }),
+  productVariant: one(productVariantTable, {
+    fields: [cartItemTable.productVariantId],
+    references: [productVariantTable.id],
+  }),
+}))
