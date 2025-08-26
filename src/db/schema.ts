@@ -1,8 +1,5 @@
-import { count } from "console";
 import { relations } from "drizzle-orm";
 import { boolean, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { email } from "zod";
-import { id } from "zod/v4/locales";
 
 export const userTable = pgTable("user", {
   id: text('id').primaryKey(),
