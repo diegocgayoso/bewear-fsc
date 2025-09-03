@@ -7,6 +7,7 @@ import ProductsList from "@/components/common/products-list";
 import PartnerBrands from "@/components/common/partner-brands";
 import Banner from "@/components/common/banner";
 import CategoryList from "@/components/common/category-list";
+import BannerMain from "@/components/common/banner-main";
 
 const Home = async () => {
   const products = await db.query.productTable.findMany({
@@ -20,7 +21,8 @@ const Home = async () => {
   return (
     <>
       <Header />
-      <Banner imageUrl="/banner01.png" />
+      <BannerMain />
+      {/* <Banner imageUrl="/banner01.png" /> */}
       <PartnerBrands />
       <ProductsList title="Mais vendidos" products={products} />
       <CategoryList />
