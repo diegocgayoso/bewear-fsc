@@ -8,11 +8,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
-import { ShoppingBasketIcon } from "lucide-react";
+import { ShoppingBag, ShoppingBasketIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getCart } from "@/actions/get-cart";
 
 import formatCentsToBrl from "@/helpers/money";
+import CartItem from "./cart-item";
 
 const Cart = () => {
   const { data: cart, isPending: cartIsPending } = useQuery({
@@ -29,32 +30,28 @@ const Cart = () => {
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Seu carrinho</SheetTitle>
+          <SheetTitle className="flex items-center gap-2">
+            <ShoppingBag color="gray" /> Seu carrinho
+          </SheetTitle>
         </SheetHeader>
-        {cartIsPending && <p>Carregando...</p>}
-        {cart?.items.length === 0 && (
-          <div className="px-4 mx-auto text-center">
-            <p>Seu carrinho está vazio</p>
-          </div>
-        )}
-        {cart?.items.map((item) => (
-          <div key={item.id} className="mb-4 flex items-center space-x-4">
-            <img
-              src={item.productVariant.imageUrl}
-              alt={item.productVariant.name}
-              className="h-16 w-16 rounded object-cover"
+        <div className="space-y-4 px-4">
+          {cartIsPending && <p>Carregando...</p>}
+          {cart?.items.length === 0 && (
+            <p className="text-center">Seu carrinho está vazio</p>
+          )}
+          {cart?.items.map((item) => (
+            <CartItem
+              key={item.id}
+              id={item.id}
+              productVariantName={item.productVariant.name}
+              productName={item.productVariant.product.name}
+              productVariantImageUrl={item.productVariant.imageUrl}
+              productVariantPriceInCents={item.productVariant.priceInCents}
+              quantity={item.quantity}
             />
-            <div>
-              <h3 className="text-lg font-medium">
-                {item.productVariant.name}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {item.quantity} x{" "}
-                {formatCentsToBrl(item.productVariant.priceInCents)}
-              </p>
-            </div>
-          </div>
-        ))}
+            
+          ))}
+        </div>
       </SheetContent>
     </Sheet>
   );
