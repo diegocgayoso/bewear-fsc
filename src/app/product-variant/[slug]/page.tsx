@@ -4,12 +4,11 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/common/header";
-import { format } from "path";
 import formatCentsToBrl from "@/helpers/money";
-import { Button } from "@/components/ui/button";
 import ProductsList from "@/components/common/products-list";
 import Footer from "@/components/common/footer";
-import VariantSelector from "@/app/product/[slug]/components/variant-selector";
+import VariantSelector from "@/app/product-variant/[slug]/components/variant-selector";
+import ProductActions from "./components/product-actions";
 
 interface ProductVariantPageProps {
   params: Promise<{ slug: string }>;
@@ -62,7 +61,10 @@ const ProductPage = async ({ params }: ProductVariantPageProps) => {
       </div>
       <div className="flex flex-col gap-6">
         <div className="px-6">
-          <VariantSelector selectedVariantSlug={productVariant.slug} variants={productVariant.product.variants} />
+          <VariantSelector
+            selectedVariantSlug={productVariant.slug}
+            variants={productVariant.product.variants}
+          />
         </div>
         <div className="px-6">
           <h2 className="text-lg font-semibold">
@@ -76,16 +78,7 @@ const ProductPage = async ({ params }: ProductVariantPageProps) => {
           </h3>
         </div>
 
-        <div className="px-6">{/* Qiantidade */}</div>
-
-        <div className="flex flex-col gap-2 px-6">
-          <Button variant="outline" className="rounded-full" size="lg">
-            Adicionar ao carrinho
-          </Button>
-          <Button className="rounded-full" size="lg">
-            Comprar agora
-          </Button>
-        </div>
+        <ProductActions productVariantId={productVariant.id} />
         <div className="px-6">
           {/* Descrição */}
           <p className="text-shadow-amber-600">
