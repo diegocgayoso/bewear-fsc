@@ -9,11 +9,14 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { LoaderCircle, ShoppingBag, ShoppingBasketIcon } from "lucide-react";
+import { LoaderCircle, ShoppingBag, ShoppingBasketIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getCart } from "@/actions/get-cart";
 
 import formatCentsToBrl from "@/helpers/money";
 import CartItem from "./cart-item";
+import { ScrollArea } from "../ui/scroll-area";
+import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
