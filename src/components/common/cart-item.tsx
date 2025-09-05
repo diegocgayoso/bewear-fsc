@@ -5,6 +5,7 @@ import { MinusIcon, PlusIcon, Trash } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { removeProductToCart } from "@/actions/remove-cart-product";
 import { toast } from "sonner";
+import { decreaseQuantityToProduct } from "@/actions/decrease-cart-product-quantity";
 
 interface CartItemProps {
   id: string;
@@ -31,6 +32,14 @@ const CartItem = ({
     },
   });
 
+  const decreaseProductQuantityMutation = useMutation({
+    mutationKey: ["decrease-product-quantity"],
+    mutationFn: () => decreaseQuantityToProduct({ cartItemId: id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
   const handleRemoveProduct = () => {
     removeProductFromCartMutation.mutate(undefined, {
       onSuccess: () => {
@@ -38,7 +47,18 @@ const CartItem = ({
       },
       onError: () => {
         toast.error("Erro ao remover produto do carrinho");
-      }
+      },
+    });
+  };
+
+  const handleDecreaseQuantity = () => {
+    decreaseProductQuantityMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Quantidade do produto atualizada");
+      },
+      onError: () => {
+        toast.error("Erro ao atualizar quantidade do produto");
+      },
     });
   };
   return (
@@ -58,9 +78,23 @@ const CartItem = ({
           {productVariantName}
         </p>
         <div className="flex w-[100px] items-center justify-between rounded-lg border p-1">
-          <Button className="h-4 w-4" variant="ghost" onClick={() => {}}>
-            <MinusIcon />
-          </Button>
+          {quantity === 1 ? (
+            <Button
+              className="h-4 w-4"
+              variant="ghost"
+              onClick={handleRemoveProduct}
+            >
+              <Trash color="gray" size={16} />
+            </Button>
+          ) : (
+              <Button
+              className="h-4 w-4"
+              variant="ghost"
+              onClick={handleDecreaseQuantity}
+            >
+              <MinusIcon />
+            </Button>
+          )}
           <p className="font-medium">{quantity}</p>
           <Button className="h-4 w-4" variant="ghost" onClick={() => {}}>
             <PlusIcon />
@@ -68,7 +102,7 @@ const CartItem = ({
         </div>
       </div>
       <div className="ml-auto text-right">
-        <Trash color="gray" size={16} onClick={handleRemoveProduct} />
+        {/* <Trash color="gray" size={16} onClick={handleRemoveProduct} /> */}
         <p className="text-lg font-semibold">
           {formatCentsToBrl(productVariantPriceInCents)}
         </p>
