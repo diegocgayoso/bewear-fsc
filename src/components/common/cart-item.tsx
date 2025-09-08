@@ -6,10 +6,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { removeProductToCart } from "@/actions/remove-cart-product";
 import { toast } from "sonner";
 import { decreaseQuantityToProduct } from "@/actions/decrease-cart-product-quantity";
+import { addProductToCart } from "@/actions/add-cart-product";
 
 interface CartItemProps {
   id: string;
   productName: string;
+  productVariantId: string;
   productVariantName: string;
   productVariantImageUrl: string;
   productVariantPriceInCents: number;
@@ -18,6 +20,7 @@ interface CartItemProps {
 const CartItem = ({
   id,
   productName,
+  productVariantId,
   productVariantName,
   productVariantImageUrl,
   productVariantPriceInCents,
@@ -39,6 +42,15 @@ const CartItem = ({
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
+  const increaseProductQuantityMutation = useMutation({
+    mutationKey: ["increase-product-quantity"],
+    mutationFn: () => addProductToCart({ productVariantId: productVariantId, quantity: 1 }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    }
+  });
+
 
   const handleRemoveProduct = () => {
     removeProductFromCartMutation.mutate(undefined, {
@@ -53,6 +65,17 @@ const CartItem = ({
 
   const handleDecreaseQuantity = () => {
     decreaseProductQuantityMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Quantidade do produto atualizada");
+      },
+      onError: () => {
+        toast.error("Erro ao atualizar quantidade do produto");
+      },
+    });
+  };
+
+  const fnIncreaseQuantity = () => {
+    increaseProductQuantityMutation.mutate(undefined, {
       onSuccess: () => {
         toast.success("Quantidade do produto atualizada");
       },
@@ -96,13 +119,12 @@ const CartItem = ({
             </Button>
           )}
           <p className="font-medium">{quantity}</p>
-          <Button className="h-4 w-4" variant="ghost" onClick={() => {}}>
+          <Button className="h-4 w-4" variant="ghost" onClick={fnIncreaseQuantity}>
             <PlusIcon />
           </Button>
         </div>
       </div>
       <div className="ml-auto text-right">
-        {/* <Trash color="gray" size={16} onClick={handleRemoveProduct} /> */}
         <p className="text-lg font-semibold">
           {formatCentsToBrl(productVariantPriceInCents)}
         </p>
