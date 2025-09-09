@@ -1,6 +1,7 @@
 import formatCentsToBrl from "@/helpers/money";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import Link from "next/link";
 
 interface CartSummaryProps {
   totalPriceInCents: number;
@@ -29,7 +30,11 @@ export const CartSummary = ({ totalPriceInCents }: CartSummaryProps) => {
         </p>
       </div>
 
-      <Button className="mt-2 rounded-full font-bold uppercase">Finalizar compra</Button>
+      <Button className="mt-2 rounded-full font-bold ">
+        <Link href="/cart/identification">
+          Finalizar compra
+        </Link>
+      </Button>
     </div>
   );
 };
