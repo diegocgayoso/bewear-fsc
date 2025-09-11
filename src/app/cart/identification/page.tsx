@@ -32,12 +32,7 @@ const IdentificationPage = async () => {
         <Addresses />
         <div className="rounded-2xl border border-gray-500 px-5 py-8 flex flex-col ">
           <h1>Seu pedido</h1>
-          <Separator />
-          <>
-            <p>produtos do carrinho</p>
-          </>
-            {/* Formulário de identificação pode ser adicionado aqui */}
-
+          <p>. . .</p>
         </div>
       </div>
     </>

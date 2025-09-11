@@ -1,6 +1,7 @@
 "use client";
 
 import { useCreateShippingAddress } from "@/hooks/mutations/use-shipping-address";
+import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,7 @@ type FormSchemaAddress = z.infer<typeof formSchemaAddress>;
 const Addresses = () => {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const createShippingAddressMutation = useCreateShippingAddress();
+  const { data: shippingAddresses, isLoading: isLoadingAddresses } = useShippingAddresses();
 
   const formAddress = useForm<FormSchemaAddress>({
     resolver: zodResolver(formSchemaAddress),
@@ -78,8 +80,24 @@ const Addresses = () => {
       </CardHeader>
       <CardContent>
         <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
+          {shippingAddresses?.map((address) => (
+            <Card key={address.id} className="mb-4">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-3">
+                  <RadioGroupItem value={address.id} id={address.id} />
+                  <div className="flex flex-col">
+                    <p className="font-semibold text-sm ">
+                      {address.recipientName} • {address.street}, {address.number}
+                      {address.complement && `, ${address.complement}`} - {address.neighborhood} • {address.city} - {address.state}, {address.zipCode}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
           <Card>
-            <CardContent>
+            <CardContent className="py-4">
               <div className="flex items-center gap-3">
                 <RadioGroupItem value="add_new" id="add_new" />
                 <Label htmlFor="add_new">Adicionar novo endereço</Label>
