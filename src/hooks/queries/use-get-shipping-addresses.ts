@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { getShippingAddresses } from "@/actions/get-shipping-addresses";
+import { getUserAddresses } from "@/actions/get-user-addresses";
 
-export const shippingAddressesQueryKey = ["shippingAddresses"] as const;
+export const getShippingAddressesQueryKey = ["get-shipping-addresses"] as const;
 
 export const useShippingAddresses = () => {
   return useQuery({
-    queryKey: shippingAddressesQueryKey,
+    queryKey: getShippingAddressesQueryKey,
     queryFn: async () => {
       try {
-        const addresses = await getShippingAddresses();
+        const addresses = await getUserAddresses();
         return addresses;
       } catch (error) {
         throw error;

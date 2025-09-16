@@ -1,7 +1,7 @@
 "use client";
 
 import { useCreateShippingAddress } from "@/hooks/mutations/use-shipping-address";
-import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
+import { useShippingAddresses } from "@/hooks/queries/use-get-shipping-addresses";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";

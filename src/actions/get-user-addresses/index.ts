@@ -6,7 +6,7 @@ import { shippingAddressTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
-export const getShippingAddresses = async () => {
+export const getUserAddresses = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
