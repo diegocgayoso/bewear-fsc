@@ -1,7 +1,7 @@
 "use client";
 
 import { useCreateShippingAddress } from "@/hooks/mutations/use-shipping-address";
-import { useShippingAddresses } from "@/hooks/queries/use-get-shipping-addresses";
+import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { PatternFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { shippingAddressTable } from "@/db/schema";
 
 const formSchemaAddress = z.object({
   email: z.email("Email inválido"),
@@ -39,10 +40,14 @@ const formSchemaAddress = z.object({
 
 type FormSchemaAddress = z.infer<typeof formSchemaAddress>;
 
-const Addresses = () => {
+interface AddressesProps {
+  shippingAddresses: typeof shippingAddressTable.$inferSelect[];
+}
+
+const Addresses = ({ shippingAddresses }: AddressesProps) => {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const createShippingAddressMutation = useCreateShippingAddress();
-  const { data: shippingAddresses, isLoading: isLoadingAddresses } = useShippingAddresses();
+  const { data: addresses, isLoading } = useUserAddresses({initialData: shippingAddresses});
 
   const formAddress = useForm<FormSchemaAddress>({
     resolver: zodResolver(formSchemaAddress),
@@ -80,7 +85,7 @@ const Addresses = () => {
       </CardHeader>
       <CardContent>
         <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
-          {shippingAddresses?.map((address) => (
+          {addresses?.map((address) => (
             <Card key={address.id} className="mb-4">
               <CardContent className="py-4">
                 <div className="flex items-center gap-3">
