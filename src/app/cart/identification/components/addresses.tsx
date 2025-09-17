@@ -1,6 +1,7 @@
 "use client";
 
 import { useCreateShippingAddress } from "@/hooks/mutations/use-shipping-address";
+import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,13 +42,22 @@ const formSchemaAddress = z.object({
 type FormSchemaAddress = z.infer<typeof formSchemaAddress>;
 
 interface AddressesProps {
-  shippingAddresses: typeof shippingAddressTable.$inferSelect[];
+  shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
+  defaultShippingAddressId: string | null;
 }
 
-const Addresses = ({ shippingAddresses }: AddressesProps) => {
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+const Addresses = ({
+  shippingAddresses,
+  defaultShippingAddressId,
+}: AddressesProps) => {
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(
+    defaultShippingAddressId || null,
+  );
   const createShippingAddressMutation = useCreateShippingAddress();
-  const { data: addresses, isLoading } = useUserAddresses({initialData: shippingAddresses});
+  const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
+  const { data: addresses, isLoading } = useUserAddresses({
+    initialData: shippingAddresses,
+  });
 
   const formAddress = useForm<FormSchemaAddress>({
     resolver: zodResolver(formSchemaAddress),
@@ -66,15 +76,43 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
     },
   });
 
-  const onSubmit = async (values: FormSchemaAddress) => {
-    console.log(values);
+  const handleGoToPayment = async () => {
+    if (!selectedAddress || selectedAddress === "add_new") return;
+
     try {
-      await createShippingAddressMutation.mutateAsync(values);
-      toast.success("Endereço criado com sucesso");
-      formAddress.reset();
-      setSelectedAddress(null);
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: selectedAddress,
+      });
+      toast.success("Endereço selecionado com sucesso");
     } catch (error) {
-      toast.error("Erro ao criar endereço");  
+      toast.error("Erro ao selecionar endereço");
+      console.error(error);
+    }
+  };
+
+  const onSubmit = async (values: FormSchemaAddress) => {
+    try {
+      const newAddress =
+        await createShippingAddressMutation.mutateAsync(values);
+
+      if ("error" in newAddress) {
+        throw new Error(newAddress.error);
+      }
+
+      formAddress.reset();
+      setSelectedAddress(newAddress.id);
+
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: newAddress.id,
+      });
+
+      toast.success("Endereço criado com sucesso");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Erro ao criar endereço");
+      }
     }
   };
 
@@ -84,23 +122,27 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
         <CardTitle>Endereço</CardTitle>
       </CardHeader>
       <CardContent>
+        
         <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
           {addresses?.map((address) => (
-            <Card key={address.id} className="mb-4">
+            <Card key={address.id}>
               <CardContent className="py-4">
                 <div className="flex items-center gap-3">
                   <RadioGroupItem value={address.id} id={address.id} />
                   <div className="flex flex-col">
-                    <p className="font-semibold text-sm ">
-                      {address.recipientName} • {address.street}, {address.number}
-                      {address.complement && `, ${address.complement}`} - {address.neighborhood} • {address.city} - {address.state}, {address.zipCode}
+                    <p className="text-sm font-semibold">
+                      {address.recipientName} • {address.street},{" "}
+                      {address.number}
+                      {address.complement && `, ${address.complement}`} -{" "}
+                      {address.neighborhood} • {address.city} - {address.state},{" "}
+                      {address.zipCode}
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-
+          
           <Card>
             <CardContent className="py-4">
               <div className="flex items-center gap-3">
@@ -110,6 +152,19 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
             </CardContent>
           </Card>
         </RadioGroup>
+        {selectedAddress && selectedAddress !== "add_new" && (
+          <div className="mt-4">
+            <Button
+              onClick={handleGoToPayment}
+              className="w-full rounded-full"
+              disabled={updateCartShippingAddressMutation.isPending}
+            >
+              {updateCartShippingAddressMutation.isPending
+                ? "Processando..."
+                : "Ir para pagamento"}
+            </Button>
+          </div>
+        )}
 
         {selectedAddress === "add_new" && (
           <Form {...formAddress}>
@@ -329,9 +384,15 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
               <Button
                 type="submit"
                 className="mt-2 w-full rounded-full font-bold disabled:opacity-50"
-                disabled={createShippingAddressMutation.isPending}
+                disabled={
+                  createShippingAddressMutation.isPending ||
+                  updateCartShippingAddressMutation.isPending
+                }
               >
-                {createShippingAddressMutation.isPending ? "Salvando..." : "Salvar endereço"}
+                {createShippingAddressMutation.isPending ||
+                updateCartShippingAddressMutation.isPending
+                  ? "Salvando..."
+                  : "Salvar endereço"}
               </Button>
             </form>
           </Form>

@@ -1,5 +1,6 @@
 import { addProductToCart } from "@/actions/add-cart-product";
 import { decreaseQuantityToProduct } from "@/actions/decrease-cart-product-quantity";
+import { getCart } from "@/actions/get-cart";
 import { removeProductToCart } from "@/actions/remove-cart-product";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -10,11 +11,13 @@ interface UseCartMutationsParams {
     quantity: number;
 }
 
+export const getCartQueryKey = () => ["cart"] as const;
+
 export const useCartMutations = ({ cartItemId, productVariantId, quantity }: UseCartMutationsParams) => {
     const queryClient = useQueryClient();
 
     const onMutationSuccess = (successMessage: string) => {
-        queryClient.invalidateQueries({ queryKey: ["cart"] });
+        queryClient.invalidateQueries({ queryKey: getCartQueryKey() });
         toast.success(successMessage);
     }
 
