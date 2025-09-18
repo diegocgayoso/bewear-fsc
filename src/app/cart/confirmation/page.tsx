@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import CartSummary from "../components/cart-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import formatAddress from "../helpers/addresses";
-import { Button } from "@/components/ui/button";
+import FinishOrderButton from "./components/finish-order.button";
 
 const ConfirmationPage = async () => {
   const session = await auth.api.getSession({
@@ -62,7 +62,7 @@ const ConfirmationPage = async () => {
             <Card>
               <CardContent>{formatAddress(cart.shippingAddress!)}</CardContent>
             </Card>
-            <Button className="w-full rounded-full" size={"lg"}>Finalizar compra</Button>
+            <FinishOrderButton />
           </CardContent>
         </Card>
         <CartSummary
