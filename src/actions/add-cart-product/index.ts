@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { addProductToCartSchema, AddProductToCartSchema } from "./schema";
 import { db } from "@/db";
-import { cartItemTable, CartTable } from "@/db/schema";
+import { cartItemTable, cartTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const addProductToCart = async (data: AddProductToCartSchema) => {
@@ -24,13 +24,13 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
         throw new Error("Product variant not found-")
     }
 
-    const cart = await db.query.CartTable.findFirst({
+    const cart = await db.query.cartTable.findFirst({
         where: (cart, { eq }) => eq(cart.userId, session.user.id)
     })
 
     let cartId = cart?.id;
     if (!cartId) {
-        const [newCart] = await db.insert(CartTable).values({
+        const [newCart] = await db.insert(cartTable).values({
             userId: session.user.id,
         })
             .returning();

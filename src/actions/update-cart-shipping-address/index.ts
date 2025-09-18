@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db";
-import { CartTable } from "@/db/schema";
+import { cartTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { updateCartShippingAddressSchema, UpdateCartShippingAddressSchema } from "./schema";
 
@@ -21,7 +21,7 @@ export const updateCartShippingAddress = async (data: UpdateCartShippingAddressS
   }
 
   // Verifica se o carrinho existe
-  const cart = await db.query.CartTable.findFirst({
+  const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, session.user.id),
   });
 
@@ -42,9 +42,9 @@ export const updateCartShippingAddress = async (data: UpdateCartShippingAddressS
 
   // Atualiza o endereço de entrega do carrinho
   await db
-    .update(CartTable)
+    .update(cartTable)
     .set({
       shippingAddressId: data.shippingAddressId,
     })
-    .where(eq(CartTable.id, cart.id));
+    .where(eq(cartTable.id, cart.id));
 };
