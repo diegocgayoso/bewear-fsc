@@ -3,9 +3,11 @@ import { db } from "@/db";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import Addresses from "./components/addresses";
+import Addresses from "../components/addresses";
 import { shippingAddressTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import CartSummary from "../components/cart-summary";
+import Footer from "@/components/common/footer";
 
 const IdentificationPage = async () => {
   const session = await auth.api.getSession({
@@ -37,16 +39,35 @@ const IdentificationPage = async () => {
   const shippingAddresses = await db.query.shippingAddressTable.findMany({
     where: eq(shippingAddressTable.userId, session.user.id),
   });
+
+  const cartTotalInCents = cart.items.reduce(
+    (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
+    0,
+  );
+
   return (
-    <>
+    <div className="space-y-12">
       <Header />
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto space-y-4 px-4">
         <Addresses
           shippingAddresses={shippingAddresses}
-          defaultShippingAddressId={cart.shippingAddressId}
+          defaultShippingAddressId={cart.shippingAddressId || null}
+        />
+        <CartSummary
+          subtotalInCents={cartTotalInCents}
+          totalInCents={cartTotalInCents}
+          products={cart.items.map((item) => ({
+            id: item.id,
+            name: item.productVariant.product.name,
+            variantName: item.productVariant.name,
+            priceInCents: item.productVariant.priceInCents,
+            quantity: item.quantity,
+            imageUrl: item.productVariant.imageUrl,
+          }))}
         />
       </div>
-    </>
+      <Footer />
+    </div>
   );
 };
 

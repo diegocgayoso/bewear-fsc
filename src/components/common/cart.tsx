@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCart } from "@/actions/get-cart";
 import { ScrollArea } from "../ui/scroll-area";
 import CartItem from "./cart-item";
-import { CartSummary } from "./cart-summary"; 
+import { CartBarSummary } from "./cart-bar-summary"; 
 import { useMemo } from "react";
 
 const Cart = () => {
@@ -63,7 +63,7 @@ const Cart = () => {
                   ))}
                 </div>
               </ScrollArea>
-              <CartSummary totalPriceInCents={cart?.totalPriceInCents ?? 0} />
+              <CartBarSummary totalPriceInCents={cart?.totalPriceInCents ?? 0} />
             </>
           )}
         </div>

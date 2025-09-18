@@ -3,12 +3,12 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import Link from "next/link";
 
-interface CartSummaryProps {
+interface CartBarSummaryProps {
   totalPriceInCents: number;
 }
 
 // Este componente só se preocupa em exibir o resumo. Simples e reutilizável.
-export const CartSummary = ({ totalPriceInCents }: CartSummaryProps) => {
+export const CartBarSummary = ({ totalPriceInCents }: CartBarSummaryProps) => {
   return (
     <div className="flex flex-col gap-4 border-t pt-4">
       <div className="flex items-center justify-between">
