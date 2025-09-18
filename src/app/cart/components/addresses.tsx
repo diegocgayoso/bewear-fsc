@@ -24,6 +24,9 @@ import { PatternFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { shippingAddressTable } from "@/db/schema";
+import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/navigation";
+import formatAddress from "../helpers/addresses";
 
 const formSchemaAddress = z.object({
   email: z.email("Email inválido"),
@@ -50,6 +53,8 @@ const Addresses = ({
   shippingAddresses,
   defaultShippingAddressId,
 }: AddressesProps) => {
+  const router = useRouter();
+  
   const [selectedAddress, setSelectedAddress] = useState<string | null>(
     defaultShippingAddressId || null,
   );
@@ -84,6 +89,7 @@ const Addresses = ({
         shippingAddressId: selectedAddress,
       });
       toast.success("Endereço selecionado com sucesso");
+      router.push("/cart/confirmation");
     } catch (error) {
       toast.error("Erro ao selecionar endereço");
       console.error(error);
@@ -131,11 +137,7 @@ const Addresses = ({
                   <RadioGroupItem value={address.id} id={address.id} />
                   <div className="flex flex-col">
                     <p className="text-sm font-semibold">
-                      {address.recipientName} • {address.street},{" "}
-                      {address.number}
-                      {address.complement && `, ${address.complement}`} -{" "}
-                      {address.neighborhood} • {address.city} - {address.state},{" "}
-                      {address.zipCode}
+                      {formatAddress(address)}
                     </p>
                   </div>
                 </div>
