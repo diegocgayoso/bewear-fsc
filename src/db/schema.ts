@@ -1,5 +1,5 @@
-import { relations } from "drizzle-orm";
-import { boolean, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { or, relations } from "drizzle-orm";
+import { boolean, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
   id: text('id').primaryKey(),
@@ -13,11 +13,12 @@ export const userTable = pgTable("user", {
 
 export const userRelations = relations(userTable, ({ many, one }) => ({
   shippingAddressTable: many(shippingAddressTable),
-  cart: one(CartTable, {
+  cart: one(cartTable, {
     fields: [userTable.id],
-    references: [CartTable.userId],
-  })
-}))
+    references: [cartTable.userId],
+  }),
+  orders: many(orderTable),
+}));
 
 export const sessionTable = pgTable("session", {
   id: text('id').primaryKey(),
@@ -101,11 +102,13 @@ export const productVariantTable = pgTable("product_variant", {
 
 export const productVariantRelations = relations(
   productVariantTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     product: one(productTable, {
       fields: [productVariantTable.productId],
       references: [productTable.id],
     }),
+    cartItems: many(cartItemTable),
+    orderItems: many(orderItemTable),
   }),
 );
 
@@ -116,7 +119,6 @@ export const shippingAddressTable = pgTable("shipping_address", {
     .references(() => userTable.id, { onDelete: "cascade" }),
   recipientName: text().notNull(),
   street: text().notNull(),
-
   number: text().notNull(),
   complement: text(),
   city: text().notNull(),
@@ -131,18 +133,19 @@ export const shippingAddressTable = pgTable("shipping_address", {
 })
 export const shippingAddressRelations = relations(
   shippingAddressTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     user: one(userTable, {
       fields: [shippingAddressTable.userId],
       references: [userTable.id],
     }),
-    cart: one(CartTable, {
+    cart: one(cartTable, {
       fields: [shippingAddressTable.userId],
-      references: [CartTable.userId],
+      references: [cartTable.userId],
     }),
+    orders: many(orderTable),
   }),
 );
-export const CartTable = pgTable("cart", {
+export const cartTable = pgTable("cart", {
   id: uuid().primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
@@ -151,13 +154,13 @@ export const CartTable = pgTable("cart", {
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
-export const cartRelations = relations(CartTable, ({many, one }) => ({
+export const cartRelations = relations(cartTable, ({ many, one }) => ({
   user: one(userTable, {
-    fields: [CartTable.userId],
+    fields: [cartTable.userId],
     references: [userTable.id],
   }),
   shippingAddress: one(shippingAddressTable, {
-    fields: [CartTable.shippingAddressId],
+    fields: [cartTable.shippingAddressId],
     references: [shippingAddressTable.id],
   }),
   items: many(cartItemTable),
@@ -166,7 +169,7 @@ export const cartItemTable = pgTable("cart_item", {
   id: uuid().primaryKey().defaultRandom(),
   cartId: uuid("cart_id")
     .notNull()
-    .references(() => CartTable.id, { onDelete: "cascade" }),
+    .references(() => cartTable.id, { onDelete: "cascade" }),
   productVariantId: uuid("product_variant_id")
     .notNull()
     .references(() => productVariantTable.id, { onDelete: "cascade" }),
@@ -174,12 +177,83 @@ export const cartItemTable = pgTable("cart_item", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 export const cartItemRelations = relations(cartItemTable, ({ one }) => ({
-  cart: one(CartTable, {
+  cart: one(cartTable, {
     fields: [cartItemTable.cartId],
-    references: [CartTable.id],
+    references: [cartTable.id],
   }),
   productVariant: one(productVariantTable, {
     fields: [cartItemTable.productVariantId],
     references: [productVariantTable.id],
   }),
 }))
+
+export const orderStatusEnum = pgEnum("order_status", [
+  "PENDING",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+]);
+
+export const orderTable = pgTable("order", {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  shippingAddressId: uuid("shipping_address_id")
+    .notNull()
+    .references(() => shippingAddressTable.id, { onDelete: "set null" }),
+  recipientName: text().notNull(),
+  street: text().notNull(),
+  number: text().notNull(),
+  complement: text(),
+  city: text().notNull(),
+  state: text().notNull(),
+  zipCode: text().notNull(),
+  neighborhood: text().notNull(),
+  country: text().notNull(),
+  phone: text().notNull(),
+  email: text().notNull(),
+  cpfOrCnpj: text().notNull(),
+  totalPriceInCents: integer("total_price_in_cents").notNull(),
+  status: orderStatusEnum().notNull().default("PENDING"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const orderRelations = relations(orderTable, ({ one, many }) => ({
+  user: one(userTable, {
+    fields: [orderTable.userId],
+    references: [userTable.id],
+  }),
+  shippingAddress: one(shippingAddressTable, {
+    fields: [orderTable.shippingAddressId],
+    references: [shippingAddressTable.id],
+  }),
+  items: many(orderItemTable),
+}));
+
+export const orderItemTable = pgTable("order_item", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => orderTable.id, { onDelete: "cascade" }),
+  productVariantId: uuid("product_variant_id")
+    .notNull()
+    .references(() => productVariantTable.id, { onDelete: "restrict" }),  
+  quantity: integer("quantity").notNull().default(1),
+  priceInCents: integer("price_in_cents").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const orderItemRelations = relations(orderItemTable, ({ one }) => ({
+  order: one(orderTable, {
+    fields: [orderItemTable.orderId],
+    references: [orderTable.id],
+  }),
+  productVariant: one(productVariantTable, {
+    fields: [orderItemTable.productVariantId],
+    references: [productVariantTable.id],
+  }),
+})) 
+
