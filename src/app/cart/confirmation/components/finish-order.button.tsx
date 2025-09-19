@@ -38,7 +38,7 @@ const FinishOrderButton = () => {
       <Dialog open={successDialogIsOpen} onOpenChange={setSuccessDialogIsOpen}>
         <DialogContent className="text-center">
           <Image
-            src="/illustration.svg"
+            src="/done-finish-order.svg"
             alt="Success"
             width={300}
             height={300}
