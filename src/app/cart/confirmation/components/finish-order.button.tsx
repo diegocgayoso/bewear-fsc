@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
 import { createCheckoutSession } from "@/actions/create-checkout-session";
-import { loadStripe} from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 const FinishOrderButton = () => {
   const [successDialogIsOpen, setSuccessDialogIsOpen] = useState(false);
@@ -38,8 +38,8 @@ const FinishOrderButton = () => {
     await stripe.redirectToCheckout({
       sessionId: checkoutSession.id,
     });
+    setSuccessDialogIsOpen(true);
   };
-  setSuccessDialogIsOpen(true);
   return (
     <>
       <Button

@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import { shippingAddressTable } from "@/db/schema";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/navigation";
-import formatAddress from "../helpers/addresses";
+import formatAddress from "../../../helpers/addresses";
 
 const formSchemaAddress = z.object({
   email: z.email("Email inválido"),
