@@ -9,17 +9,16 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { Button } from "../ui/button";
-import {
-  LogInIcon,
-  LogOutIcon,
-  MenuIcon,
-} from "lucide-react";
+import { Home, LogInIcon, LogOutIcon, MenuIcon, ShoppingCart, Truck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Cart from "./cart";
+import { Separator } from "../ui/separator";
+import { db } from "@/db";
 
 const Header = () => {
   const { data: session } = authClient.useSession();
+
   return (
     <header className="flex items-center justify-between p-4">
       <Link href="/">
@@ -77,7 +76,28 @@ const Header = () => {
                   </Button>
                 </div>
               )}
+            </div> 
+            <div className="px-6">
+              <Separator />
             </div>
+            <div className="px-8 flex flex-col gap-5">
+              <Link href="/" className="flex items-center text-sm font-semibold">
+                <Home className="mr-2 h-4 w-4" />
+                Início
+              </Link>
+              <Link href="/my-orders" className="flex items-center text-sm font-semibold">
+                <Truck className="mr-2 h-4 w-4" />
+                Meus Pedidos
+              </Link>
+              <Link href="/my-orders" className="flex items-center text-sm font-semibold">
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Carrinho
+              </Link>
+            </div>
+            <div className="px-6">
+              <Separator />
+            </div>
+            
           </SheetContent>
         </Sheet>
         <Cart />

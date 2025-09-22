@@ -22,7 +22,6 @@ const Home = async () => {
     <>
       <Header />
       <BannerMain />
-      {/* <Banner imageUrl="/banner01.png" /> */}
       <PartnerBrands />
       <ProductsList title="Mais vendidos" products={products} />
       <CategoryList />
