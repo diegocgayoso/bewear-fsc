@@ -1,3 +1,4 @@
+import Footer from "@/components/common/footer";
 import Header from "@/components/common/header";
 import Product from "@/components/common/product-item";
 import { db } from "@/db";
@@ -26,14 +27,15 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
   return (
     <>
       <Header />
-      <div className="sapce-y-6 px-5">
+      <div className="space-y-6 px-5">
         <h2 className="text-xl font-semibold py-6">{category.name}</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
           {products.map((product) => (
             <Product key={product.id} product={product} textContainerClassName="max-width-[329px]"></Product>
           ))}
         </div>
       </div>
+      <Footer />
     </>
   );
 };
