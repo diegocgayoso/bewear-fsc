@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orderTable } from "@/db/schema";
+import { cartTable, orderTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
